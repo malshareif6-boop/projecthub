@@ -21,7 +21,7 @@ class StoreTaskFileRequest extends FormRequest
                 'required',
                 'file',
                 'mimes:pdf,doc,docx,jpg,jpeg,png',
-                'max:10240', // 10 MB
+                'max:10240', // 10 mb
             ],
         ];
     }

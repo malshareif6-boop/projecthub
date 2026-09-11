@@ -73,10 +73,15 @@
                     <x-slot name="trigger">
                         <button
                             class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition">
-                            <span
-                                class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                            </span>
+                            @if (Auth::user()->avatar)
+                                <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}"
+                                    class="w-7 h-7 rounded-full object-cover">
+                            @else
+                                <span
+                                    class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </span>
+                            @endif
                             <span class="hidden md:block">{{ Auth::user()->name }}</span>
                             <svg class="fill-current h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 20 20">
@@ -154,10 +159,15 @@
 
         <div class="pt-4 pb-3 border-t border-gray-200">
             <div class="px-4 flex items-center gap-3">
-                <span
-                    class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-semibold">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                </span>
+                @if (Auth::user()->avatar)
+                    <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}"
+                        class="w-9 h-9 rounded-full object-cover">
+                @else
+                    <span
+                        class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-semibold">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </span>
+                @endif
                 <div>
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                     <div class="text-sm text-gray-500">{{ Auth::user()->email }}</div>

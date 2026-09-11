@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('avatar')->nullable()->after('github_id');
         });
 
-        // password nullable لحسابات social
         Schema::table('users', function (Blueprint $table) {
             $table->string('password')->nullable()->change();
         });

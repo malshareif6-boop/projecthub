@@ -61,7 +61,7 @@ class ProjectFilePolicy
             return true;
         }
 
-        // Uploader or project owner
+        // uploader or project owner
         return $user->id === $projectFile->uploaded_by
             || $user->id === $project->owner_id;
     }

@@ -9,7 +9,6 @@ class StoreProjectRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Student can only create if they don't already belong to any project
         $alreadyInProject = DB::table('project_members')
             ->where('user_id', $this->user()->id)
             ->exists();

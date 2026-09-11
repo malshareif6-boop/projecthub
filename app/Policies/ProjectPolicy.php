@@ -21,7 +21,6 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        // Owner, member, assigned supervisor, or admin
         if ($user->role === 'admin') {
             return true;
         }
@@ -46,13 +45,13 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        // Only the owner can edit title/description
+        // the owner can edit title and description
         return $user->id === $project->owner_id;
     }
 
     public function changeStatus(User $user, Project $project): bool
     {
-        // Only assigned supervisor or admin
+        //  assigned supervisor or admin
         if ($user->role === 'admin') {
             return true;
         }

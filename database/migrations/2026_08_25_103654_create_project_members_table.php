@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['project_id', 'user_id']); //compost key
+            $table->unique(['project_id', 'user_id']); //composet key
         });
     }
 

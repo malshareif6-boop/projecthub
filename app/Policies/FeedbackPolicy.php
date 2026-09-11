@@ -59,7 +59,12 @@ class FeedbackPolicy
      */
     public function delete(User $user, Feedback $feedback): bool
     {
-        return false;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+
+        return $feedback->supervisor_id === $user->id;
     }
 
     /**

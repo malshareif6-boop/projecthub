@@ -49,12 +49,12 @@ class TaskPolicy
     {
         $project = $task->project;
 
-        // Owner can update everything
+        // owner can update
         if ($user->id === $project->owner_id) {
             return true;
         }
 
-        // Assignee can update (mainly status)
+        // assignee can update (status)
         return $user->id === $task->assigned_to;
     }
 

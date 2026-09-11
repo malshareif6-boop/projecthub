@@ -29,7 +29,7 @@ class SocialAuthController extends Controller
         $this->validateProvider($provider);
 
         try {
-            // استخدام stateless لضمان جلب البيانات بدون خطأ InvalidStateException
+
             $socialUser = Socialite::driver($provider)->stateless()->user();
         } catch (\Exception $e) {
             return redirect()->route('login')
@@ -38,7 +38,7 @@ class SocialAuthController extends Controller
 
         $providerIdColumn = $provider . '_id';
 
-        // جلب الإيميل، وفي حال عدم وجوده في GitHub يتم استخدام الإيميل الخفي أو nickname
+
         $email = $socialUser->getEmail() ?? ($socialUser->getNickname() ? $socialUser->getNickname() . '@github.local' : null);
 
         if (!$email) {
@@ -48,10 +48,10 @@ class SocialAuthController extends Controller
                 ]);
         }
 
-        // 1) البحث عن المستخدم باستخدام provider_id
+
         $user = User::where($providerIdColumn, $socialUser->getId())->first();
 
-        // 2) إن لم يوجد، البحث بالإيميل وربط الحساب
+        //
         if (!$user) {
             $user = User::where('email', $email)->first();
 
@@ -63,7 +63,7 @@ class SocialAuthController extends Controller
             }
         }
 
-        // 3) إن لم يوجد مطلقاً، إنشاء حساب جديد
+        //
         if (!$user) {
             $data = [
                 'name'            => $socialUser->getName() ?: ($socialUser->getNickname() ?: 'User'),

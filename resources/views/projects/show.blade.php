@@ -253,7 +253,8 @@
                                                     @can('create', [App\Models\TaskFile::class, $task])
                                                         <form method="POST"
                                                             action="{{ route('tasks.files.store', $task) }}"
-                                                            enctype="multipart/form-data" class="space-y-2">
+                                                            enctype="multipart/form-data" data-turbo="true"
+                                                            class="space-y-2">
                                                             @csrf
                                                             <input type="file" name="file"
                                                                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required
@@ -267,11 +268,12 @@
                                                     @endcan
                                                 </div>
 
-                                                {{-- Feedback --}}
+                                                {{-- Task Feedback --}}
                                                 <div>
                                                     <h5 class="text-xs uppercase tracking-wide text-[#8A8779] mb-2">
                                                         Feedback ({{ $task->feedbacks->count() }})
                                                     </h5>
+
                                                     @if ($task->feedbacks->count() > 0)
                                                         <ul class="space-y-1.5 mb-3 max-h-40 overflow-y-auto">
                                                             @foreach ($task->feedbacks as $feedback)
@@ -290,9 +292,12 @@
                                                                             <form method="POST"
                                                                                 action="{{ route('task-feedbacks.destroy', $feedback) }}"
                                                                                 onsubmit="return confirm('Delete this feedback?')">
-                                                                                @csrf @method('DELETE')
+                                                                                @csrf
+                                                                                @method('DELETE')
                                                                                 <button type="submit"
-                                                                                    class="text-[#B0453A] hover:text-[#7A2E22] text-xs font-medium shrink-0">Delete</button>
+                                                                                    class="text-xs text-[#B0453A] hover:text-[#7A2E22] font-medium shrink-0">
+                                                                                    Delete
+                                                                                </button>
                                                                             </form>
                                                                         @endcan
                                                                     </div>
@@ -302,6 +307,7 @@
                                                     @else
                                                         <p class="text-xs text-[#8A8779] mb-3">No feedback yet.</p>
                                                     @endif
+
                                                     @can('create', [App\Models\TaskFeedback::class, $task])
                                                         <form method="POST"
                                                             action="{{ route('tasks.feedbacks.store', $task) }}"
@@ -313,8 +319,9 @@
                                                                 <p class="text-xs text-[#B0453A]">{{ $message }}</p>
                                                             @enderror
                                                             <button type="submit"
-                                                                class="bg-[#1C2333] hover:bg-[#2A3348] text-white text-xs font-medium px-3 py-1.5 rounded-md transition">Add
-                                                                feedback</button>
+                                                                class="bg-[#1C2333] hover:bg-[#2A3348] text-white text-xs font-medium px-3 py-1.5 rounded-md transition">
+                                                                Add feedback
+                                                            </button>
                                                         </form>
                                                     @endcan
                                                 </div>
@@ -380,7 +387,7 @@
                         @endphp
                         @if ($canUpload)
                             <form method="POST" action="{{ route('projects.files.store', $project) }}"
-                                enctype="multipart/form-data"
+                                enctype="multipart/form-data" data-turbo="true"
                                 class="border border-dashed border-[#D8D5C8] rounded-md p-5 bg-white space-y-3">
                                 @csrf
                                 <input type="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
@@ -429,33 +436,47 @@
 
                     {{-- ---------- FEEDBACK ---------- --}}
                     <div x-show="tab === 'feedback'" x-cloak class="pt-6 space-y-4">
-                        @php
-                            $canFeedback =
-                                auth()->user()->role === 'admin' ||
-                                (auth()->user()->role === 'supervisor' && $project->supervisor_id === auth()->id());
-                        @endphp
-                        @if ($canFeedback)
+
+                        @can('create', [App\Models\Feedback::class, $project])
                             <form method="POST" action="{{ route('projects.feedback.store', $project) }}"
                                 class="border border-[#E4E1D6] rounded-md p-4 bg-white space-y-3">
                                 @csrf
                                 <textarea name="message" rows="3" required placeholder="Write your feedback..."
                                     class="w-full border-[#E4E1D6] rounded-md text-sm shadow-sm focus:border-[#B8862E] focus:ring-[#B8862E]"></textarea>
                                 <button type="submit"
-                                    class="bg-[#1C2333] hover:bg-[#2A3348] text-white text-sm font-medium px-5 py-2 rounded-md transition">Post
-                                    feedback</button>
+                                    class="bg-[#1C2333] hover:bg-[#2A3348] text-white text-sm font-medium px-5 py-2 rounded-md transition">
+                                    Post feedback
+                                </button>
                             </form>
-                        @endif
+                        @endcan
 
                         @if ($project->feedbacks->count() > 0)
                             <div class="space-y-3">
                                 @foreach ($project->feedbacks as $feedback)
                                     <div class="border border-[#E4E1D6] rounded-md bg-white p-4">
-                                        <div class="flex justify-between items-center mb-2">
-                                            <p class="text-sm font-medium text-[#1C2333]">
-                                                {{ $feedback->supervisor->name ?? 'Supervisor' }}</p>
-                                            <p class="text-xs text-[#8A8779]">
-                                                {{ $feedback->created_at->format('d M Y H:i') }}</p>
+                                        <div class="flex justify-between items-start gap-3 mb-2">
+                                            <div>
+                                                <p class="text-sm font-medium text-[#1C2333]">
+                                                    {{ $feedback->supervisor->name ?? 'Supervisor' }}
+                                                </p>
+                                                <p class="text-xs text-[#8A8779]">
+                                                    {{ $feedback->created_at->format('d M Y H:i') }}
+                                                </p>
+                                            </div>
+
+                                            @can('delete', $feedback)
+                                                <form method="POST" action="{{ route('feedbacks.destroy', $feedback) }}"
+                                                    onsubmit="return confirm('Delete this feedback?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="text-xs text-[#B0453A] hover:text-[#7A2E22] font-medium">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            @endcan
                                         </div>
+
                                         <p class="text-sm text-[#5A5850] whitespace-pre-line">{{ $feedback->message }}
                                         </p>
                                     </div>
@@ -521,6 +542,7 @@
                     {{-- Status & health --}}
                     <div class="border border-[#E4E1D6] rounded-md bg-white p-4" x-data="{ confirmChange: false }">
                         <p class="text-xs uppercase tracking-wide text-[#8A8779] mb-3">Status</p>
+
                         <div class="flex items-center justify-between mb-1">
                             @foreach ($stages as $i => $stage)
                                 <div class="flex-1 flex items-center">
@@ -533,6 +555,7 @@
                                 </div>
                             @endforeach
                         </div>
+
                         <p class="text-sm font-medium text-[#1C2333] capitalize mb-3">{{ $project->status }}</p>
 
                         <div class="flex items-center gap-2 text-sm mb-4">
@@ -549,34 +572,51 @@
 
                         @can('changeStatus', $project)
                             <form method="POST" action="{{ route('projects.status.update', $project) }}"
-                                class="flex gap-2" @submit.prevent="confirmChange = true">
+                                class="flex gap-2" x-ref="statusForm">
                                 @csrf
                                 @method('PATCH')
+
                                 <select name="status" class="flex-1 border-[#E4E1D6] rounded-md text-xs shadow-sm">
                                     @foreach ($stages as $status)
                                         <option value="{{ $status }}" @selected($project->status === $status)>
-                                            {{ ucfirst($status) }}</option>
+                                            {{ ucfirst($status) }}
+                                        </option>
                                     @endforeach
                                 </select>
+
                                 <button type="button" @click="confirmChange = true"
-                                    class="shrink-0 bg-[#1C2333] hover:bg-[#2A3348] text-white text-xs font-medium px-3 py-1.5 rounded-md transition">Update</button>
+                                    class="shrink-0 bg-[#1C2333] hover:bg-[#2A3348] text-white text-xs font-medium px-3 py-1.5 rounded-md transition">
+                                    Update
+                                </button>
                             </form>
+
+                            {{-- Modal --}}
                             <div x-show="confirmChange" x-cloak
                                 class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
                                 <div class="bg-white rounded-md p-6 max-w-sm w-full shadow-xl"
                                     @click.outside="confirmChange = false">
                                     <h3 class="text-sm font-semibold text-[#1C2333] mb-1">Confirm status change</h3>
-                                    <p class="text-sm text-[#8A8779] mb-5">This updates the project stage for everyone on
-                                        the team.</p>
+                                    <p class="text-sm text-[#8A8779] mb-5">
+                                        This updates the project stage for everyone on the team.
+                                    </p>
                                     <div class="flex gap-3 justify-end">
                                         <button type="button" @click="confirmChange = false"
-                                            class="px-4 py-2 text-sm font-medium text-[#1C2333] rounded-md border border-[#E4E1D6] hover:bg-[#FAF9F5]">Cancel</button>
+                                            class="px-4 py-2 text-sm font-medium text-[#1C2333] rounded-md border border-[#E4E1D6] hover:bg-[#FAF9F5]">
+                                            Cancel
+                                        </button>
+
+                                        {{-- FIX: requestSubmit(), NOT submit(). submit() does not fire a
+                                             "submit" event, so Turbo would never intercept it and this
+                                             action alone would force a full page reload. --}}
                                         <button type="button"
-                                            @click="$el.closest('[x-data]').querySelector('form[method=POST][action*=status]').requestSubmit()"
-                                            class="px-4 py-2 text-sm font-medium bg-[#1C2333] text-white rounded-md hover:bg-[#2A3348]">Confirm</button>
+                                            @click="confirmChange = false; $refs.statusForm.requestSubmit()"
+                                            class="px-4 py-2 text-sm font-medium bg-[#1C2333] text-white rounded-md hover:bg-[#2A3348]">
+                                            Confirm
+                                        </button>
                                     </div>
                                 </div>
                             </div>
+
                             @error('status')
                                 <p class="text-xs text-[#B0453A] mt-2">{{ $message }}</p>
                             @enderror
@@ -722,26 +762,24 @@
         NO-RELOAD UPDATES — Turbo Drive
         =====================================================================
         Every form on this page updates WITHOUT a full browser page reload,
-        with ZERO changes to any Controller. Turbo intercepts submits/links,
-        sends them via fetch(), follows the normal redirect()->back()
-        response, and morphs the returned HTML into the current DOM instead
-        of doing a full page replace (since the URL is unchanged).
+        with ZERO changes to any Controller. Turbo intercepts submits/links
+        and sends them via fetch(), following the normal redirect()->back()
+        response.
+
+        NOTE: intentionally NOT using turbo-refresh-method=morph anymore.
+        Morph tries to smart-diff the returned HTML into the live DOM, but
+        it has no awareness of Alpine's own runtime state (inline styles
+        Alpine sets for x-show, e.g. on the status-change modal). Idiomorph
+        would strip/restore those inline styles independently of Alpine's
+        actual reactive value, causing hidden Alpine elements (like that
+        modal) to randomly reappear after ANY Turbo refresh triggered by a
+        different form (this was the "upload file -> status modal pops up"
+        bug). Plain Turbo Drive (full body swap via fetch) avoids this
+        entirely: it still fully avoids a real browser reload, but rebuilds
+        the DOM from scratch each time so Alpine always starts clean.
     --}}
-    <script>
-        (function() {
-            function ensureMeta(name, content) {
-                if (!document.querySelector('meta[name="' + name + '"]')) {
-                    var meta = document.createElement('meta');
-                    meta.name = name;
-                    meta.content = content;
-                    document.head.appendChild(meta);
-                }
-            }
-            ensureMeta('turbo-refresh-method', 'morph');
-            ensureMeta('turbo-refresh-scroll', 'preserve');
-        })();
-    </script>
     <script type="module">
         import * as Turbo from "https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/+esm";
     </script>
+
 </x-app-layout>

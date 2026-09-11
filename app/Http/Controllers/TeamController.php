@@ -14,9 +14,10 @@ class TeamController extends Controller
     {
         $student = User::where('email', $request->email)->firstOrFail();
 
-        // Double-check inside transaction (Section 13.2)
+        // Re check
+
         DB::transaction(function () use ($project, $student) {
-            // Re-check: already in any project?
+
             $alreadyInAnyProject = DB::table('project_members')
                 ->where('user_id', $student->id)
                 ->exists();
@@ -25,7 +26,7 @@ class TeamController extends Controller
                 abort(422, 'This student already belongs to another project.');
             }
 
-            // Re-check: team size
+
             if ($project->members()->count() >= 5) {
                 abort(422, 'The team has reached the maximum of 5 members.');
             }

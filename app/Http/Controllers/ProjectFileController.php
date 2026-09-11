@@ -49,10 +49,10 @@ class ProjectFileController extends Controller
     {
         $this->authorize('delete', $file);
 
-        // Delete from storage
+        // delete from storage
         Storage::disk('local')->delete($file->stored_path);
 
-        // Delete from database
+        // delete from database
         $file->delete();
 
         return back()->with('success', 'File deleted successfully.');

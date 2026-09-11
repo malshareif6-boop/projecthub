@@ -12,7 +12,6 @@ class UpdateTaskRequest extends FormRequest
         $task = $this->route('task');
         $project = $task->project;
 
-        // Owner can update anything, assignee can only update status
         return $this->user()->id === $project->owner_id
             || $this->user()->id === $task->assigned_to;
     }
@@ -37,7 +36,6 @@ class UpdateTaskRequest extends FormRequest
             ];
         }
 
-        // Assignee can only change status
         return [
             'status' => ['required', 'in:pending,in_progress,completed'],
         ];

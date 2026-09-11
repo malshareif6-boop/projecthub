@@ -10,7 +10,7 @@ class ContactController extends Controller
 {
     public function index()
     {
-        $contacts = Contact::latest()->paginate(15);
+        $contacts = Contact::latest()->paginate(5);
         $unreadCount = Contact::where('is_read', false)->count();
 
         return view('admin.contacts.index', compact('contacts', 'unreadCount'));
@@ -18,7 +18,7 @@ class ContactController extends Controller
 
     public function markRead(Contact $contact)
     {
-        $contact->update(['is_active' => true]); // fix below
+        $contact->update(['is_active' => true]);
         $contact->update(['is_read' => true]);
 
         return back()->with('success', 'Message marked as read.');
