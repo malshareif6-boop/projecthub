@@ -757,27 +757,7 @@
         </div>
     </div>
 
-    {{--
-        =====================================================================
-        NO-RELOAD UPDATES — Turbo Drive
-        =====================================================================
-        Every form on this page updates WITHOUT a full browser page reload,
-        with ZERO changes to any Controller. Turbo intercepts submits/links
-        and sends them via fetch(), following the normal redirect()->back()
-        response.
 
-        NOTE: intentionally NOT using turbo-refresh-method=morph anymore.
-        Morph tries to smart-diff the returned HTML into the live DOM, but
-        it has no awareness of Alpine's own runtime state (inline styles
-        Alpine sets for x-show, e.g. on the status-change modal). Idiomorph
-        would strip/restore those inline styles independently of Alpine's
-        actual reactive value, causing hidden Alpine elements (like that
-        modal) to randomly reappear after ANY Turbo refresh triggered by a
-        different form (this was the "upload file -> status modal pops up"
-        bug). Plain Turbo Drive (full body swap via fetch) avoids this
-        entirely: it still fully avoids a real browser reload, but rebuilds
-        the DOM from scratch each time so Alpine always starts clean.
-    --}}
     <script type="module">
         import * as Turbo from "https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/+esm";
     </script>

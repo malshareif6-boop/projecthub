@@ -5,16 +5,26 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFeedbackRequest;
 use App\Models\Project;
 use App\Models\Feedback;
+use App\Mail\FeedbackPostedMail;
+use Illuminate\Support\Facades\Mail;
 
 class FeedbackController extends Controller
 {
     public function store(StoreFeedbackRequest $request, Project $project)
     {
         $this->authorize('create', [Feedback::class, $project]);
-        $project->feedbacks()->create([
+
+        $feedback = $project->feedbacks()->create([
             'supervisor_id' => $request->user()->id,
-            'message' => $request->message,
+            'message'       => $request->message,
         ]);
+
+        $project->load('owner');
+
+        if ($project->owner) {
+            Mail::to($project->owner)
+                ->queue(new FeedbackPostedMail($project, $feedback));
+        }
 
         return back()->with('success', 'Feedback added successfully.');
     }

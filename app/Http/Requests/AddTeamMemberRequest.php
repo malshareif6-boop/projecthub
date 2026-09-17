@@ -34,7 +34,7 @@ class AddTeamMemberRequest extends FormRequest
                 return;
             }
 
-            // Must be a student
+            // must be a student
             if ($student->role !== 'student') {
                 $validator->errors()->add('email', 'Only students can be added to a project.');
                 return;

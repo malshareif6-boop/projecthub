@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\EmailOtpController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EvaluationController;
@@ -29,7 +30,13 @@ Route::get('/', function () {
 
 Route::post('/contact', [ContactController::class, 'store'])
     ->name('contact.store');
+/////////////////////////
 
+Route::middleware('auth')->group(function () {
+    Route::get('/email/otp', [EmailOtpController::class, 'show'])->name('verification.otp');
+    Route::post('/email/otp', [EmailOtpController::class, 'verify'])->name('verification.otp.verify');
+    Route::post('/email/otp/resend', [EmailOtpController::class, 'resend'])->name('verification.otp.resend');
+});
 
 
 
@@ -51,7 +58,7 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 |///////////////////////
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -63,7 +70,7 @@ Route::middleware('auth')->group(function () {
 |/////////////////////////////////////
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
 
     // Student only
     Route::middleware(['role:student'])->group(function () {
@@ -120,7 +127,7 @@ Route::middleware(['auth'])->group(function () {
 |/////////////////////////////
 */
 
-Route::middleware(['auth', 'role:student'])->group(function () {
+Route::middleware(['auth', 'role:student', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -132,7 +139,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 |////////////////////////////
 */
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin', 'verified'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', function () {
         $stats = [
@@ -181,7 +188,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 |/////////////////////////////////////////
 */
 
-Route::middleware(['auth', 'role:supervisor'])->prefix('supervisor')->group(function () {
+Route::middleware(['auth', 'role:supervisor', 'verified'])->prefix('supervisor')->group(function () {
     Route::get('/dashboard', function () {
         $projects = Project::with(['owner', 'members'])
             ->where('supervisor_id', auth()->id())

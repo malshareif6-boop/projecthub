@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddTeamMemberRequest;
+use App\Mail\MemberAddedMail;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class TeamController extends Controller
 {
@@ -33,18 +35,18 @@ class TeamController extends Controller
 
             $project->members()->attach($student->id);
         });
-
+        Mail::to($student)->queue(new MemberAddedMail($student, $project));
         return back()->with('success', $student->name . ' has been added to the team.');
     }
 
     public function destroy(Project $project, User $user)
     {
-        // Only owner can remove members
+        // only owner can remove members
         if (auth()->id() !== $project->owner_id) {
             abort(403);
         }
 
-        // Cannot remove the owner
+        // acnnot remove the owner
         if ($user->id === $project->owner_id) {
             return back()->withErrors(['team' => 'You cannot remove the project owner.']);
         }

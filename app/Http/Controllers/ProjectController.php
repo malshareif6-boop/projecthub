@@ -10,7 +10,8 @@ use App\Services\ProgressCalculator;
 use App\Services\ProjectHealthCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Mail\SupervisorAssignedMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ProjectController extends Controller
@@ -45,10 +46,10 @@ class ProjectController extends Controller
                 'owner_id' => $request->user()->id,
             ]);
 
-            // Add owner as member
+            // add owner as member
             $project->members()->attach($request->user()->id);
 
-            // Create default milestones
+            // create default milestones
             $defaultMilestones = [
                 'Idea',
                 'Proposal',
@@ -154,6 +155,12 @@ class ProjectController extends Controller
         $project->update([
             'supervisor_id' => $supervisor->id,
         ]);
+
+        $project->load('supervisor', 'owner');
+        if ($project->supervisor_id) {
+            Mail::to($project->supervisor)
+                ->queue(new SupervisorAssignedMail($project->supervisor, $project));
+        }
 
         return back()->with('success', 'Supervisor assigned successfully.');
     }

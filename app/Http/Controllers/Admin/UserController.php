@@ -57,7 +57,7 @@ class UserController extends Controller
 
     public function toggleActive(User $user)
     {
-        // Prevent deactivating yourself
+        // prevent deactivating yourself
         if ($user->id === auth()->id()) {
             return back()->withErrors(['error' => 'You cannot deactivate your own account.']);
         }

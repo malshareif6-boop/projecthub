@@ -59,6 +59,7 @@ class SocialAuthController extends Controller
                 $user->update([
                     $providerIdColumn => $socialUser->getId(),
                     'avatar'          => $socialUser->getAvatar(),
+                    'email_verified_at' => $user->email_verified_at ?? now(),
                 ]);
             }
         }
@@ -68,6 +69,7 @@ class SocialAuthController extends Controller
             $data = [
                 'name'            => $socialUser->getName() ?: ($socialUser->getNickname() ?: 'User'),
                 'email'           => $email,
+                'email_verified_at' => now(),
                 $providerIdColumn => $socialUser->getId(),
                 'avatar'          => $socialUser->getAvatar(),
                 'role'            => 'student',
@@ -82,6 +84,10 @@ class SocialAuthController extends Controller
             }
 
             $user = User::create($data);
+        }
+
+        if (!$user->email_verified_at) {
+            $user->forceFill(['email_verified_at' => now()])->save();
         }
 
         if (!$user->is_active) {
