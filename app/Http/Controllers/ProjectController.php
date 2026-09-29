@@ -49,6 +49,8 @@ class ProjectController extends Controller
             // add owner as member
             $project->members()->attach($request->user()->id);
 
+            $project->conversations()->create(['type' => 'team']);
+
             // create default milestones
             $defaultMilestones = [
                 'Idea',
@@ -91,6 +93,7 @@ class ProjectController extends Controller
             'tasks.files.uploader',
             'tasks.feedbacks.user',
             'tasks.assignee',
+            'conversations'
         ]);
 
         $progress = (new ProgressCalculator())->calculate($project);
@@ -155,6 +158,7 @@ class ProjectController extends Controller
         $project->update([
             'supervisor_id' => $supervisor->id,
         ]);
+        $project->conversations()->firstOrCreate(['type' => 'supervisor']);
 
         $project->load('supervisor', 'owner');
         if ($project->supervisor_id) {

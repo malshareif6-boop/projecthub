@@ -8,6 +8,9 @@ use App\Models\TaskFile;
 use App\Models\TaskFeedback;
 use App\Policies\TaskFilePolicy;
 use App\Policies\TaskFeedbackPolicy;
+use App\Models\Conversation;
+use App\Policies\ConversationPolicy;
+use Illuminate\Support\Facades\Broadcast;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +29,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(TaskFile::class, TaskFilePolicy::class);
         Gate::policy(TaskFeedback::class, TaskFeedbackPolicy::class);
+        Gate::policy(Conversation::class, ConversationPolicy::class);
+
+        Broadcast::routes(['middleware' => ['web', 'auth']]);
     }
 }

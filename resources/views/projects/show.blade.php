@@ -19,6 +19,9 @@
         </div>
     </x-slot>
 
+
+
+
     <div class="min-h-screen" style="background:#FAF9F5">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -50,7 +53,10 @@
 
                 {{-- ============================= MAIN ============================= --}}
                 <div class="flex-1 min-w-0">
-
+                    @php
+                        $teamConvo = $project->conversations->firstWhere('type', 'team');
+                        $supConvo = $project->conversations->firstWhere('type', 'supervisor');
+                    @endphp
                     {{-- Tab nav --}}
                     <nav class="flex gap-6 border-b border-[#E4E1D6] overflow-x-auto">
                         <button type="button" @click="tab = 'overview'"
@@ -77,6 +83,19 @@
                                 'border-transparent text-[#8A8779] hover:text-[#1C2333]'"
                             class="shrink-0 pb-3 text-sm font-medium border-b-2 transition">Milestones
                             <span class="text-[#8A8779]">({{ $project->milestones->count() }})</span></button>
+                        @if ($teamConvo && auth()->user()->can('view', $teamConvo))
+                            <a href="{{ route('projects.chat', [$project, 'team']) }}"
+                                class="shrink-0 pb-3 text-sm font-medium border-b-2 border-transparent text-[#8A8779] hover:text-[#1C2333] transition">
+                                Team Chat
+                            </a>
+                        @endif
+
+                        @if ($supConvo && auth()->user()->can('view', $supConvo))
+                            <a href="{{ route('projects.chat', [$project, 'supervisor']) }}"
+                                class="shrink-0 pb-3 text-sm font-medium border-b-2 border-transparent text-[#8A8779] hover:text-[#1C2333] transition">
+                                Supervisor Chat
+                            </a>
+                        @endif
                     </nav>
 
                     {{-- ---------- OVERVIEW ---------- --}}
@@ -756,6 +775,7 @@
             </div>
         </div>
     </div>
+
 
 
     <script type="module">

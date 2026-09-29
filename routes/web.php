@@ -4,9 +4,11 @@ use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\EmailOtpController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -19,6 +21,11 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
+///////////////////////
+//test reverb
+Route::get('/broadcast-test', function () {
+    return view('broadcast-test');
+})->middleware('auth');
 /*
 ////////////////////////////////
 | Public
@@ -31,6 +38,18 @@ Route::get('/', function () {
 Route::post('/contact', [ContactController::class, 'store'])
     ->name('contact.store');
 /////////////////////////
+
+
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/projects/{project}/chat/{type}', [ChatController::class, 'show'])
+        ->name('projects.chat');
+
+    Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store'])
+        ->name('messages.store');
+});
+////////////////////////////////////////
 
 Route::middleware('auth')->group(function () {
     Route::get('/email/otp', [EmailOtpController::class, 'show'])->name('verification.otp');
@@ -71,6 +90,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+
 
     // Student only
     Route::middleware(['role:student'])->group(function () {
