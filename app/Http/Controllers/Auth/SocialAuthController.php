@@ -95,6 +95,15 @@ class SocialAuthController extends Controller
                 ->withErrors(['email' => 'Your account has been deactivated.']);
         }
 
+        if ($user->two_factor_secret && $user->two_factor_confirmed_at) {
+            session()->put([
+                'login.id'       => $user->id,
+                'login.remember' => true,
+            ]);
+
+            return redirect()->route('two-factor.login');
+        }
+
         Auth::login($user, true);
 
         return match ($user->role) {
