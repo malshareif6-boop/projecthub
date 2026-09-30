@@ -11,6 +11,8 @@ use App\Policies\TaskFeedbackPolicy;
 use App\Models\Conversation;
 use App\Policies\ConversationPolicy;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Responses\FortifyLoginResponse;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(LoginResponse::class, FortifyLoginResponse::class);
     }
 
     /**
@@ -32,5 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Conversation::class, ConversationPolicy::class);
 
         Broadcast::routes(['middleware' => ['web', 'auth']]);
+
+        $this->app->singleton(LoginResponse::class, FortifyLoginResponse::class);
     }
 }

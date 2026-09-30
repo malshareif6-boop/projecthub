@@ -148,11 +148,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
 |/////////////////////////////
 */
 
-Route::middleware(['auth', 'role:student', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
+// Route::middleware(['auth', 'role:student', 'verified'])->group(function () {
+//     Route::get('/dashboard', function () {
+//         $user = auth()->user();
+//         if ($user->role === 'admin') {
+//             return redirect()->route('admin.dashboard');
+//         }
+//         if ($user->role === 'supervisor') {
+//             return redirect()->route('supervisor.dashboard');
+//         }
+//         return view('dashboard');
+//     })->name('dashboard');
+// });
+
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    return match ($user->role) {
+        'admin'      => redirect()->route('admin.dashboard'),
+        'supervisor' => redirect()->route('supervisor.dashboard'),
+        default      => view('dashboard'),
+    };
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
 |///////////////////////////////////////////

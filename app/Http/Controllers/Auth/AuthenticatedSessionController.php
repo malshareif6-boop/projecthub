@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Laravel\Fortify\Features;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,23 +24,41 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+
+
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
+        $user = $request->user();
+
+        if (
+            \Laravel\Fortify\Features::enabled(\Laravel\Fortify\Features::twoFactorAuthentication())
+            && $user->two_factor_secret
+            && $user->two_factor_confirmed_at
+        ) {
+            // 1) احفظ id قبل أي logout
+            $request->session()->put([
+                'login.id'       => $user->id,
+                'login.remember' => $request->boolean('remember'),
+            ]);
+
+            // 2) اخرج من الجلسة المصادَق عليها فقط
+            Auth::logout();
+
+            // 3) لا تستدعِ session()->invalidate() ولا regenerate هنا
+            $request->session()->save();
+
+            return redirect()->route('two-factor.login');
+        }
+
         $request->session()->regenerate();
 
-        $user = Auth::user();
-
-        if ($user->role === 'admin') {
-            return redirect()->intended('/admin/dashboard');
-        }
-
-        if ($user->role === 'supervisor') {
-            return redirect()->intended('/supervisor/dashboard');
-        }
-
-        return redirect()->intended('/dashboard');
+        return match ($user->role) {
+            'admin'      => redirect()->intended(route('admin.dashboard')),
+            'supervisor' => redirect()->intended(route('supervisor.dashboard')),
+            default      => redirect()->intended(route('dashboard')),
+        };
     }
 
     /**
