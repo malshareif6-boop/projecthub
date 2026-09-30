@@ -37,16 +37,14 @@ class AuthenticatedSessionController extends Controller
             && $user->two_factor_secret
             && $user->two_factor_confirmed_at
         ) {
-            // 1) احفظ id قبل أي logout
+
             $request->session()->put([
                 'login.id'       => $user->id,
                 'login.remember' => $request->boolean('remember'),
             ]);
 
-            // 2) اخرج من الجلسة المصادَق عليها فقط
             Auth::logout();
 
-            // 3) لا تستدعِ session()->invalidate() ولا regenerate هنا
             $request->session()->save();
 
             return redirect()->route('two-factor.login');

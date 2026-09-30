@@ -43,13 +43,24 @@ class UserController extends Controller
             'role' => ['required', 'in:supervisor,admin'],
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'is_active' => true,
-        ]);
+        // User::create([
+        //     'name' => $request->name,
+        //     'email' => $request->email,
+        //     'password' => Hash::make($request->password),
+        //     'role' => $request->role,
+        //     'is_active' => true,
+        //     'email_verified_at' => now(),
+        // ]);
+
+        $user = new User();
+        $user->forceFill([
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'password'          => Hash::make($request->password),
+            'role'              => $request->role,
+            'is_active'         => true,
+            'email_verified_at' => now(),
+        ])->save();
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User created successfully.');
